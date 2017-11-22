@@ -137,6 +137,27 @@ public class MultiEnvAware<T> implements Map<String, T> {
     }
 
     /**
+     * Returns the key, if that specified key is mapped to something or if there is template environment
+     * @param key
+     * @return
+     */
+    public String getEnvironmentKey(String key) {
+        if (StringUtils.isBlank(key)) {
+            if (this.hasDefaultEnvironment()) {
+                return defaultEnvironment;
+            } else {
+                throw new MultiEnvSupportException("[environment] property is mandatory and can't be empty");
+            }
+        }
+        if (map.containsKey(key) || this.hasTemplateEnvironment()) {
+            return key;
+        }
+        LOG.error("Failed to find environment [{}] in {}", key, this.keySet());
+        throw new MultiEnvSupportException(String.format(
+                "Failed to find configuration for environment %s", key));
+    }
+
+    /**
      * Shortcut to provide default configuration key.
      *
      * @return String
